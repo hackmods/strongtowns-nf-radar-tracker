@@ -1,0 +1,14 @@
+{
+  "chapter": "Niagara Falls",
+  "events": [
+    {
+      "slug": "2026-06-june",
+      "title": "June 2026 Community Speed Radar",
+      "description": "Volunteers measured vehicle speeds on priority streets in Niagara Falls to document how fast drivers are traveling.",
+      "date": "2026-06-28",
+      "csv": "data/events/2026-06-june.csv",
+      "speedThreshold": 50,
+      "volunteers": 4
+    }
+  ]
+}

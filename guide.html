@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>How to Run · Strong Towns Speed Radar</title>
+  <link rel="icon" href="logo.png" type="image/png">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="guide.css">
+</head>
+<body>
+  <main id="guide-app">
+    <header class="site-header site-header--guide">
+      <div class="brand-text">
+        <p class="eyebrow">Strong Towns</p>
+        <h1>How to Run a Speed Radar Event</h1>
+        <p class="tagline">A procedure guide for chapter organizers and volunteers — logging data, publishing results, and advocating for safer streets.</p>
+      </div>
+    </header>
+
+    <nav class="site-nav" aria-label="Site">
+      <a href="index.html">Log speeds</a>
+      <span class="nav-sep">·</span>
+      <a href="results.html">Results</a>
+      <span class="nav-sep">·</span>
+      <span class="nav-current">How to run</span>
+    </nav>
+
+    <div class="page-content page-content--prose">
+    <div class="guide-links">
+      <a class="guide-link-card" href="index.html">
+        <strong>Speed tracker</strong>
+        <span>Enter readings during the event</span>
+      </a>
+      <a class="guide-link-card" href="results.html">
+        <strong>Results page</strong>
+        <span>View published event stats</span>
+      </a>
+    </div>
+
+    <nav class="guide-toc" aria-label="On this page">
+      <h2>On this page</h2>
+      <ol>
+        <li><a href="#overview">Overview</a></li>
+        <li><a href="#setup">One-time setup</a></li>
+        <li><a href="#plan">Plan the session</a></li>
+        <li><a href="#entering-data">Entering data</a></li>
+        <li><a href="#tips">Tips for a good session</a></li>
+        <li><a href="#publish">Publish results</a></li>
+        <li><a href="#view-results">View results</a></li>
+        <li><a href="#council">Presenting to council</a></li>
+        <li><a href="#shutdown">Shut down</a></li>
+      </ol>
+    </nav>
+
+    <section class="guide-section" id="overview">
+      <h2>Overview</h2>
+      <p>A community speed radar event documents how fast drivers are actually traveling on streets your chapter cares about. Volunteers log readings with a mobile tracker; after the event, you publish a public results page to share with your chapter, neighbors, and local officials.</p>
+      <ol class="guide-phase-list">
+        <li>
+          <span class="guide-phase-num">1</span>
+          <span><strong>Before</strong> — set up the Google Sheet, tracker site, and volunteers</span>
+        </li>
+        <li>
+          <span class="guide-phase-num">2</span>
+          <span><strong>During</strong> — log speeds on priority streets</span>
+        </li>
+        <li>
+          <span class="guide-phase-num">3</span>
+          <span><strong>After</strong> — export data, publish the results page, and share findings</span>
+        </li>
+      </ol>
+    </section>
+
+    <section class="guide-section" id="setup">
+      <h2>One-time setup</h2>
+      <p>Chapter organizers complete this once before the first event. Full technical steps with troubleshooting are in <a href="README.md">README.md</a> in the project repository.</p>
+      <ol>
+        <li><strong>Google Sheet + Apps Script</strong> — create a sheet, paste <code>google-apps-script/Code.gs</code>, deploy as a web app (Execute as <em>Me</em>, access <em>Anyone</em>), and copy the deployment URL.</li>
+        <li><strong>Configure the tracker</strong> — in <code>app.js</code>, set <code>SCRIPT_URL</code> and <code>SECRET</code> to match your Apps Script deployment.</li>
+        <li><strong>GitHub Pages</strong> — push the repo and enable Pages on the <code>main</code> branch (root folder).</li>
+        <li><strong>Optional branding</strong> — add <code>logo.png</code> and set your chapter name in <code>data/manifest.json</code>.</li>
+      </ol>
+      <div class="guide-callout guide-callout--note">
+        <strong>Verify before volunteers use the site</strong>
+        Open your Apps Script URL in a private/incognito window with a test reading. You should see <code>{"ok":true}</code> without a Google sign-in page. If sign-in is required, redeploy with the correct access settings.
+      </div>
+    </section>
+
+    <section class="guide-section" id="plan">
+      <h2>Plan the session</h2>
+      <p>Do this a few days before each event.</p>
+      <ul>
+        <li>Pick <strong>2–5 streets</strong> where speeding is a known concern.</li>
+        <li>Agree on a <strong>speed threshold</strong> for the results page (default <strong>50 km/h</strong>; use <strong>40</strong> for residential-focused events).</li>
+        <li>Assign volunteers with radar guns or phone apps that display vehicle speed.</li>
+        <li>Share the <strong>tracker URL</strong> (<a href="index.html">index.html</a> on your site) and the <strong>event password</strong> with volunteers. The password is set in <code>app.js</code> — your chapter lead distributes it; do not post it publicly.</li>
+        <li>Brief volunteers on safety: stay visible, stay on the sidewalk or shoulder, and <strong>do not confront drivers</strong>. You are observing and recording, not enforcing.</li>
+      </ul>
+    </section>
+
+    <section class="guide-section" id="entering-data">
+      <h2>Entering data</h2>
+      <p>Volunteers use the <a href="index.html">speed tracker</a> on their phones during the event.</p>
+      <ol class="guide-steps">
+        <li>Open the tracker link your chapter shared. Enter the event password when prompted. You stay logged in for 7 days on that device.</li>
+        <li>For each vehicle reading, enter the <strong>street name</strong> (required).</li>
+        <li>Tap a <strong>direction</strong> (N / S / E / W) if it matters for your location — optional; tap again to clear.</li>
+        <li>Enter <strong>speed</strong> in km/hr and tap <strong>Log speed</strong>.</li>
+        <li>After submitting, the speed field clears but <strong>street and direction stay filled</strong> so you can log the next vehicle quickly on the same block.</li>
+        <li>Check <strong>Recent readings</strong> at the bottom of the page to confirm entries are saving.</li>
+      </ol>
+      <p>Data syncs to your chapter’s shared Google Sheet in near real time. If the connection drops, readings queue on the device and retry automatically.</p>
+    </section>
+
+    <section class="guide-section" id="tips">
+      <h2>Tips for a good session</h2>
+      <div class="guide-callout guide-callout--tip">
+        <strong>Data quality</strong>
+        Use consistent street spelling (e.g. always “Main St”, not “main street”). Record direction when it matters — one-way pairs, uphill vs downhill, or opposite lanes on a wide road.
+      </div>
+      <ul>
+        <li>Aim for <strong>at least 3 readings per street</strong> so that street appears in the results charts and table.</li>
+        <li>Pick a consistent time window (e.g. Saturday morning) so results are comparable month to month.</li>
+        <li>Position volunteers where they can read plates of traffic safely — visible clothing helps.</li>
+        <li>One volunteer per phone is ideal; if phones are shared, note the real volunteer count when publishing (see <a href="#publish">Publish results</a>).</li>
+        <li>Take a group photo and note which streets you covered — useful for social media and council presentations.</li>
+      </ul>
+    </section>
+
+    <section class="guide-section" id="publish">
+      <h2>Publish results</h2>
+      <p>After the event, a chapter organizer exports the sheet data and updates the site so the <a href="results.html">results page</a> goes live.</p>
+
+      <h3>1. Export CSV from Google Sheets</h3>
+      <ol>
+        <li>Open your Google Sheet.</li>
+        <li><strong>File → Download → Comma Separated Values (.csv)</strong></li>
+        <li>Save as <code>data/events/&lt;slug&gt;.csv</code> (e.g. <code>data/events/2026-06-june.csv</code>).</li>
+      </ol>
+
+      <h3>2. Update the manifest</h3>
+      <p>Edit <code>data/manifest.json</code> and add an event entry to the <code>events</code> array:</p>
+      <pre class="guide-code"><code>{
+  "slug": "2026-06-june",
+  "title": "June 2026 Community Speed Radar",
+  "description": "What streets you monitored and why — plain language for the public.",
+  "date": "2026-06-28",
+  "csv": "data/events/2026-06-june.csv",
+  "speedThreshold": 50
+}</code></pre>
+      <p>Optional: add <code>"volunteers": 5</code> when the real headcount differs from unique devices in the CSV (e.g. shared phones).</p>
+      <div class="guide-table-wrap">
+        <table class="guide-table">
+          <thead>
+            <tr>
+              <th>Field</th>
+              <th>Required</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>slug</code></td>
+              <td>Yes</td>
+              <td>URL-safe id, used in <code>results.html?event=slug</code></td>
+            </tr>
+            <tr>
+              <td><code>title</code></td>
+              <td>Yes</td>
+              <td>Shown in results header</td>
+            </tr>
+            <tr>
+              <td><code>description</code></td>
+              <td>Yes</td>
+              <td>Context for readers and council</td>
+            </tr>
+            <tr>
+              <td><code>date</code></td>
+              <td>Yes</td>
+              <td>ISO date <code>YYYY-MM-DD</code></td>
+            </tr>
+            <tr>
+              <td><code>csv</code></td>
+              <td>Yes</td>
+              <td>Path to committed CSV file</td>
+            </tr>
+            <tr>
+              <td><code>speedThreshold</code></td>
+              <td>No</td>
+              <td>km/h for “% over X” stats; defaults to 50</td>
+            </tr>
+            <tr>
+              <td><code>volunteers</code></td>
+              <td>No</td>
+              <td>Headcount override; defaults to unique device IDs in CSV</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>The results page shows the newest event by default.</p>
+
+      <h3>3. Push to GitHub</h3>
+      <pre class="guide-code"><code>git add data/
+git commit -m "Publish June 2026 speed radar results"
+git push</code></pre>
+      <p>Results go live at <code>https://&lt;username&gt;.github.io/&lt;repo&gt;/results.html</code> after GitHub Pages deploys (usually within a minute or two).</p>
+
+      <h3>4. Share</h3>
+      <ul>
+        <li>Chapter email or social media — link to the results page</li>
+        <li>Local council or traffic committee</li>
+        <li>Monthly meetup discussion</li>
+      </ul>
+    </section>
+
+    <section class="guide-section" id="view-results">
+      <h2>View results</h2>
+      <p>Anyone can open the <a href="results.html">results page</a> once an organizer has published an event. The page computes stats from your CSV — no manual analysis needed.</p>
+      <div class="guide-table-wrap">
+        <table class="guide-table">
+          <thead>
+            <tr>
+              <th>Stat</th>
+              <th>What it means</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Median speed</strong></td>
+              <td>The middle value — typical driver, not skewed by one outlier</td>
+            </tr>
+            <tr>
+              <td><strong>85th percentile</strong></td>
+              <td>Speed at or below which 85% of drivers traveled; familiar to traffic engineers</td>
+            </tr>
+            <tr>
+              <td><strong>% over threshold</strong></td>
+              <td>Share of vehicles faster than your speed threshold (default 50 km/h)</td>
+            </tr>
+            <tr>
+              <td><strong>Highest recorded</strong></td>
+              <td>Worst single reading — useful as a headline, not the typical speed</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>The <strong>By street</strong> section compares locations side by side: median, 85th percentile, and % over threshold for each street. Use the tabs to see speed distributions per street.</p>
+      <div class="guide-callout guide-callout--note">
+        <strong>Before results are live</strong>
+        The results page only shows events listed in <code>data/manifest.json</code> with a committed CSV. During the event, data lives in the Google Sheet; volunteers use the tracker, not the results page.
+      </div>
+    </section>
+
+    <section class="guide-section" id="council">
+      <h2>Presenting to council</h2>
+      <p>When you bring findings to elected officials or staff, lead with:</p>
+      <ol>
+        <li><strong>How many readings and streets</strong> — establishes credibility and effort</li>
+        <li><strong>% over threshold</strong> — the problem in one number</li>
+        <li><strong>Which streets scored worst</strong> — where to focus action</li>
+      </ol>
+      <p>Pair the results infographic with a short narrative: why you chose these streets, what residents experience, and what Strong Towns principles suggest (slower speeds, safer design, enforcement as one tool among many).</p>
+    </section>
+
+    <section class="guide-section" id="shutdown">
+      <h2>Shut down</h2>
+      <p>When your chapter is done running speed radar events:</p>
+      <ol>
+        <li>In Apps Script: <strong>Deploy → Manage deployments</strong> — disable or delete the web app.</li>
+        <li>Optionally take down GitHub Pages.</li>
+        <li>Archive or delete the Google Sheet.</li>
+      </ol>
+      <p>The tracker password and script secret are fine for a short community event but should be retired when the event ends. See the README security notes for details.</p>
+    </section>
+
+    <footer class="site-footer">
+      <p><a href="index.html">Log speeds</a> · <a href="results.html">View results</a></p>
+      <p>Strong Towns community speed radar</p>
+    </footer>
+    </div>
+  </main>
+</body>
+</html>
