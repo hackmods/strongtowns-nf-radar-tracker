@@ -31,7 +31,7 @@ jobs:
             exit 1
           fi
           if [ -z "$CAPROVER_APP_TOKEN" ] && [ -z "$CAPROVER_PASSWORD" ]; then
-            echo "::error::Set CAPROVER_APP_TOKEN or CAPROVER_PASSWORD for deploy auth."
+            echo "::error::Set CAPROVER_PASSWORD (recommended — auto-creates app) or CAPROVER_APP_TOKEN."
             exit 1
           fi
           APP="$(echo "$CAPROVER_APP_NAME" | tr -d '[:space:]')"

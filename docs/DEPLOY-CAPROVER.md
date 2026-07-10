@@ -4,28 +4,40 @@ Pushes to `main` upload the source as a tarball to CapRover, which builds the Do
 
 This static site uses **nginx** to serve HTML, CSS, JS, and the `data/` folder for published results — no build step on the server.
 
-## One-time CapRover setup
+## One-time setup (recommended: password auto-create)
 
-1. **Create the app** in the CapRover dashboard (or let CI create it if you set `CAPROVER_PASSWORD`).
-   - Use a short lowercase name, e.g. `stnf-radar`
-   - This name must match `CAPROVER_APP_NAME` **exactly**
-2. Open the app → **Deployment** → **Enable App Token** → copy the token
-3. Enable **HTTPS** (Let's Encrypt) and set your public domain in the app settings
-4. No environment variables are required — configure `SCRIPT_URL` and `SECRET` in [`app.js`](../app.js) before pushing
+You do **not** need to create the CapRover app manually. Set these three GitHub secrets and push to `main` — CI logs in with your captain password, **creates the app** if it does not exist, then deploys:
 
-## GitHub secrets
-
-| Secret | Required | Example | Notes |
-|--------|----------|---------|-------|
-| `CAPROVER_SERVER` | Yes | `https://captain.apps.example.com` | CapRover **dashboard** URL |
-| `CAPROVER_APP_NAME` | Yes | `stnf-radar` | Exact app name — not a URL |
-| `CAPROVER_APP_TOKEN` | Yes* | (Deployment tab) | App deploy token |
-| `CAPROVER_PASSWORD` | Optional | Captain password | Auto-creates app if missing; deploys with password auth |
-| `CAPROVER_OTP_TOKEN` | Optional | 2FA code | Required if CapRover dashboard has two-factor auth enabled |
-
-\* Use `CAPROVER_APP_TOKEN` **or** `CAPROVER_PASSWORD`. If the app does not exist yet, add `CAPROVER_PASSWORD` once — CI will create the app, then deploy.
+| Secret | Example | Notes |
+|--------|---------|-------|
+| `CAPROVER_SERVER` | `https://captain.apps.example.com` | CapRover **dashboard** URL (not the app URL) |
+| `CAPROVER_APP_NAME` | `stnf-radar` | Short lowercase name — CI creates this app on first run |
+| `CAPROVER_PASSWORD` | (your captain password) | Dashboard login password |
 
 **Find `CAPROVER_SERVER`:** open the CapRover dashboard in your browser and copy that URL.
+
+After the first successful deploy:
+
+1. Open the new app in CapRover → enable **HTTPS** (Let's Encrypt)
+2. Optional: App → Deployment → **Enable App Token**, add `CAPROVER_APP_TOKEN` secret, then remove `CAPROVER_PASSWORD` from GitHub if you prefer token-only deploys
+
+No CapRover environment variables are required — configure `SCRIPT_URL` and `SECRET` in [`app.js`](../app.js) before pushing.
+
+## Alternative: app token only
+
+If the app already exists in CapRover:
+
+| Secret | Required | Notes |
+|--------|----------|-------|
+| `CAPROVER_SERVER` | Yes | Dashboard URL |
+| `CAPROVER_APP_NAME` | Yes | Must match existing app name exactly |
+| `CAPROVER_APP_TOKEN` | Yes | App → Deployment → Enable App Token |
+
+## Optional secrets
+
+| Secret | When needed |
+|--------|-------------|
+| `CAPROVER_OTP_TOKEN` | CapRover dashboard has two-factor auth enabled (use current 2FA code as secret, or disable 2FA for CI) |
 
 ## How the build works
 
@@ -36,7 +48,7 @@ Because this is a static site, the Docker build is fast and needs very little RA
 ## Deploy checklist
 
 1. Set `CONFIG.SCRIPT_URL` and `CONFIG.SECRET` in [`app.js`](../app.js)
-2. Add GitHub secrets (`CAPROVER_SERVER`, `CAPROVER_APP_NAME`, `CAPROVER_APP_TOKEN`)
+2. Add GitHub secrets: `CAPROVER_SERVER`, `CAPROVER_APP_NAME`, `CAPROVER_PASSWORD` (auto-creates app on first deploy)
 3. Push to `main` — watch **Actions** → **Build and Deploy to CapRover**
 4. Open your app URL (e.g. `https://stnf-radar.apps.example.com`) and test with password `Eddie`
 

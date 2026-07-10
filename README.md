@@ -60,7 +60,7 @@ const CONFIG = {
 
 **Option B — CapRover (custom domain, auto-deploy on push)**
 
-1. Add GitHub secrets: `CAPROVER_SERVER`, `CAPROVER_APP_NAME`, `CAPROVER_APP_TOKEN`.
+1. Add GitHub secrets: `CAPROVER_SERVER`, `CAPROVER_APP_NAME`, `CAPROVER_PASSWORD` — CI auto-creates the app on first deploy.
 2. Push to `main` — the workflow builds an nginx container and deploys it.
 3. Full setup: **[docs/DEPLOY-CAPROVER.md](docs/DEPLOY-CAPROVER.md)**
 
