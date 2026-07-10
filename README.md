@@ -49,12 +49,20 @@ const CONFIG = {
 };
 ```
 
-### 3. GitHub Pages
+### 3. Host the site
+
+**Option A — GitHub Pages (simplest)**
 
 1. Push this repo to GitHub.
 2. Go to **Settings → Pages**.
 3. Source: **Deploy from branch** → `main` → `/ (root)`.
 4. Your site will be at `https://<username>.github.io/strongtowns-nf-radar-tracker/`.
+
+**Option B — CapRover (custom domain, auto-deploy on push)**
+
+1. Add GitHub secrets: `CAPROVER_SERVER`, `CAPROVER_APP_NAME`, `CAPROVER_APP_TOKEN`.
+2. Push to `main` — the workflow builds an nginx container and deploys it.
+3. Full setup: **[docs/DEPLOY-CAPROVER.md](docs/DEPLOY-CAPROVER.md)**
 
 Share the URL and password (`Eddie`) with volunteers.
 

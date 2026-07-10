@@ -1,0 +1,12 @@
+.git
+.github
+.cursor
+deploy.tar
+README.md
+GUIDE.md
+docs
+Dockerfile
+.dockerignore
+captain-definition
+.build-id
+google-apps-script
