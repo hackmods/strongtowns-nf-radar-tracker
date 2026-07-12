@@ -5,130 +5,155 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Results · Strong Towns Speed Radar</title>
   <link rel="icon" href="logo.png" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="results.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </head>
 <body>
-  <main id="results-app">
-    <header class="site-header site-header--results">
-      <div class="brand-text">
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+
+  <div id="results-app">
+    <header class="top-nav">
+      <a class="top-nav-brand" href="index.html">
+        <span class="brand-mark" aria-hidden="true">ST</span>
+        <span class="brand-name">Strong Towns <span class="brand-place">Niagara Falls</span></span>
+      </a>
+      <nav class="top-nav-links" aria-label="Site">
+        <a href="index.html">Log speeds</a>
+        <span class="nav-current" aria-current="page">Results</span>
+        <a href="guide.html">How to run</a>
+        <a class="top-nav-cta" href="index.html">Log speeds</a>
+      </nav>
+    </header>
+
+    <main id="main-content" class="page-shell" tabindex="-1">
+      <header class="page-hero">
         <p class="eyebrow" id="chapter-eyebrow">Strong Towns</p>
         <h1 id="event-title">Speed Radar Results</h1>
         <p class="event-date" id="event-date" hidden></p>
         <p class="tagline" id="event-description"></p>
+      </header>
+
+      <div class="page-content page-content--wide">
+        <div id="event-picker-wrap" class="event-picker-wrap" hidden>
+          <label for="event-picker">Past events</label>
+          <select id="event-picker"></select>
+        </div>
+
+        <div id="loading" class="status-card" role="status" aria-live="polite">Loading results…</div>
+        <div id="error-state" class="status-card status-card--error" role="alert" hidden></div>
+
+        <div id="results-content" hidden>
+          <section class="results-section" aria-labelledby="snapshot-heading">
+            <h2 class="section-title" id="snapshot-heading">Event snapshot</h2>
+            <div class="stat-grid" id="credibility-stats"></div>
+          </section>
+
+          <section class="results-section" aria-labelledby="speed-glance-heading">
+            <h2 class="section-title" id="speed-glance-heading">Speed at a glance</h2>
+            <div class="stat-grid" id="speed-stats"></div>
+            <div class="callout" id="threshold-callout"></div>
+          </section>
+
+          <section class="results-section charts-section" aria-labelledby="charts-heading">
+            <h2 class="sr-only" id="charts-heading">Charts</h2>
+            <div class="charts-grid charts-grid--overview">
+              <article class="chart-card chart-span-full">
+                <h3 class="section-title section-title--chart">How fast were drivers going?</h3>
+                <div class="chart-canvas-wrap chart-canvas-wrap--bar">
+                  <canvas id="chart-distribution" role="img" aria-label="Overall speed distribution" aria-describedby="summary-chart-distribution"></canvas>
+                </div>
+                <p id="summary-chart-distribution" class="chart-summary"></p>
+              </article>
+
+              <article class="chart-card chart-span-streets">
+                <h3 class="section-title section-title--chart">Which streets had the highest speeds?</h3>
+                <div class="chart-canvas-wrap chart-canvas-wrap--bar-tall">
+                  <canvas id="chart-streets-avg" role="img" aria-label="Average speed by street" aria-describedby="summary-chart-streets-avg"></canvas>
+                </div>
+                <p id="summary-chart-streets-avg" class="chart-summary"></p>
+              </article>
+
+              <article class="chart-card chart-span-direction">
+                <h3 class="section-title section-title--chart">Travel direction</h3>
+                <div class="chart-canvas-wrap chart-canvas-wrap--donut">
+                  <canvas id="chart-direction" role="img" aria-label="Direction split" aria-describedby="summary-chart-direction"></canvas>
+                </div>
+                <p id="summary-chart-direction" class="chart-summary"></p>
+              </article>
+
+              <article class="chart-card chart-span-full" id="hourly-section" hidden>
+                <h3 class="section-title section-title--chart">When were speeds highest?</h3>
+                <div class="chart-canvas-wrap chart-canvas-wrap--bar">
+                  <canvas id="chart-hourly" role="img" aria-label="Readings by hour" aria-describedby="summary-chart-hourly"></canvas>
+                </div>
+                <p id="summary-chart-hourly" class="chart-summary"></p>
+              </article>
+            </div>
+          </section>
+
+          <section class="results-section" aria-labelledby="by-street-heading">
+            <h2 class="section-title" id="by-street-heading">By street</h2>
+            <div class="table-wrap">
+              <table class="street-table" id="street-table">
+                <caption class="sr-only">Speed statistics by street</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Street</th>
+                    <th scope="col">Readings</th>
+                    <th scope="col">Median</th>
+                    <th scope="col">85th %</th>
+                    <th scope="col" id="threshold-col-header">% over 50</th>
+                  </tr>
+                </thead>
+                <tbody id="street-table-body"></tbody>
+              </table>
+            </div>
+
+            <div id="street-threshold-wrap" class="chart-card chart-card--threshold" hidden>
+              <h3 class="chart-subtitle" id="street-threshold-title">% over threshold by street</h3>
+              <div class="chart-canvas-wrap chart-canvas-wrap--bar-tall">
+                <canvas id="chart-street-threshold" role="img" aria-label="Percent over threshold by street" aria-describedby="summary-chart-street-threshold"></canvas>
+              </div>
+              <p id="summary-chart-street-threshold" class="chart-summary"></p>
+            </div>
+
+            <div class="street-detail-panel">
+              <h3 class="chart-subtitle" id="street-dist-heading">Speed distribution by street</h3>
+              <div class="street-tabs" id="street-dist-tabs" role="tablist" aria-labelledby="street-dist-heading"></div>
+              <div class="street-detail-grid street-detail-grid--solo" id="street-detail-grid">
+                <div class="chart-card chart-card--flush" role="tabpanel" id="street-dist-panel" aria-labelledby="street-dist-heading">
+                  <div class="chart-canvas-wrap chart-canvas-wrap--bar">
+                    <canvas id="chart-street-distribution" role="img" aria-label="Speed distribution for selected street" aria-describedby="summary-chart-street-distribution"></canvas>
+                  </div>
+                  <p id="summary-chart-street-distribution" class="chart-summary"></p>
+                </div>
+                <div id="street-direction-wrap" class="chart-card chart-card--flush chart-card--donut-inline" hidden>
+                  <h4 class="chart-subtitle chart-subtitle--inline" id="street-direction-title">Direction</h4>
+                  <div class="chart-canvas-wrap chart-canvas-wrap--donut">
+                    <canvas id="chart-street-direction" role="img" aria-label="Direction for selected street" aria-describedby="summary-chart-street-direction"></canvas>
+                  </div>
+                  <p id="summary-chart-street-direction" class="chart-summary"></p>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <footer class="site-footer">
+          <nav class="footer-nav" aria-label="Footer">
+            <a href="index.html">Log speeds</a>
+            <a href="guide.html">How to run</a>
+            <a href="accessibility.html">Accessibility</a>
+          </nav>
+          <p class="footer-credit">Strong Towns community speed radar</p>
+        </footer>
       </div>
-    </header>
-
-    <nav class="site-nav" aria-label="Site">
-      <a href="index.html">Log speeds</a>
-      <span class="nav-sep">·</span>
-      <span class="nav-current">Results</span>
-      <span class="nav-sep">·</span>
-      <a href="guide.html">How to run</a>
-    </nav>
-
-    <div id="event-picker-wrap" class="event-picker-wrap" hidden>
-      <label for="event-picker">Past events</label>
-      <select id="event-picker"></select>
-    </div>
-
-    <div id="loading" class="status-card">Loading results…</div>
-    <div id="error-state" class="status-card status-card--error" hidden></div>
-
-    <div id="results-content" hidden>
-      <section class="results-section">
-        <h2 class="section-title">Event snapshot</h2>
-        <div class="stat-grid" id="credibility-stats"></div>
-      </section>
-
-      <section class="results-section">
-        <h2 class="section-title">Speed at a glance</h2>
-        <div class="stat-grid" id="speed-stats"></div>
-        <div class="callout" id="threshold-callout"></div>
-      </section>
-
-      <section class="results-section charts-section">
-        <div class="charts-grid charts-grid--overview">
-          <article class="chart-card chart-span-full">
-            <h2 class="section-title section-title--chart">How fast were drivers going?</h2>
-            <div class="chart-canvas-wrap chart-canvas-wrap--bar">
-              <canvas id="chart-distribution" aria-label="Overall speed distribution"></canvas>
-            </div>
-          </article>
-
-          <article class="chart-card chart-span-streets">
-            <h2 class="section-title section-title--chart">Which streets had the highest speeds?</h2>
-            <div class="chart-canvas-wrap chart-canvas-wrap--bar-tall">
-              <canvas id="chart-streets-avg" aria-label="Average speed by street"></canvas>
-            </div>
-          </article>
-
-          <article class="chart-card chart-span-direction">
-            <h2 class="section-title section-title--chart">Travel direction</h2>
-            <div class="chart-canvas-wrap chart-canvas-wrap--donut">
-              <canvas id="chart-direction" aria-label="Direction split"></canvas>
-            </div>
-          </article>
-
-          <article class="chart-card chart-span-full" id="hourly-section" hidden>
-            <h2 class="section-title section-title--chart">When were speeds highest?</h2>
-            <div class="chart-canvas-wrap chart-canvas-wrap--bar">
-              <canvas id="chart-hourly" aria-label="Readings by hour"></canvas>
-            </div>
-          </article>
-        </div>
-      </section>
-
-      <section class="results-section">
-        <h2 class="section-title">By street</h2>
-        <div class="table-wrap">
-          <table class="street-table" id="street-table">
-            <thead>
-              <tr>
-                <th>Street</th>
-                <th>Readings</th>
-                <th>Median</th>
-                <th>85th %</th>
-                <th id="threshold-col-header">% over 50</th>
-              </tr>
-            </thead>
-            <tbody id="street-table-body"></tbody>
-          </table>
-        </div>
-
-        <div id="street-threshold-wrap" class="chart-card chart-card--threshold" hidden>
-          <h3 class="chart-subtitle" id="street-threshold-title">% over threshold by street</h3>
-          <div class="chart-canvas-wrap chart-canvas-wrap--bar-tall">
-            <canvas id="chart-street-threshold" aria-label="Percent over threshold by street"></canvas>
-          </div>
-        </div>
-
-        <div class="street-detail-panel">
-          <h3 class="chart-subtitle">Speed distribution by street</h3>
-          <div class="street-tabs" id="street-dist-tabs" role="tablist" aria-label="Speed distribution by street"></div>
-          <div class="street-detail-grid street-detail-grid--solo" id="street-detail-grid">
-            <div class="chart-card chart-card--flush">
-              <div class="chart-canvas-wrap chart-canvas-wrap--bar">
-                <canvas id="chart-street-distribution" aria-label="Speed distribution for selected street"></canvas>
-              </div>
-            </div>
-            <div id="street-direction-wrap" class="chart-card chart-card--flush chart-card--donut-inline" hidden>
-              <h4 class="chart-subtitle chart-subtitle--inline" id="street-direction-title">Direction</h4>
-              <div class="chart-canvas-wrap chart-canvas-wrap--donut">
-                <canvas id="chart-street-direction" aria-label="Direction for selected street"></canvas>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-    </div>
-
-    <footer class="site-footer">
-      <p><a href="index.html">← Back to speed radar</a></p>
-      <p class="footer-credit">Strong Towns community speed radar</p>
-    </footer>
-  </main>
+    </main>
+  </div>
 
   <script src="results.js"></script>
 </body>

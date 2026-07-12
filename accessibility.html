@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Accessibility · Strong Towns Speed Radar</title>
+  <link rel="icon" href="logo.png" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+
+  <div id="a11y-app">
+    <header class="top-nav">
+      <a class="top-nav-brand" href="index.html">
+        <span class="brand-mark" aria-hidden="true">ST</span>
+        <span class="brand-name">Strong Towns <span class="brand-place">Niagara Falls</span></span>
+      </a>
+      <nav class="top-nav-links" aria-label="Site">
+        <a href="index.html">Log speeds</a>
+        <a href="results.html">Results</a>
+        <a href="guide.html">How to run</a>
+        <span class="nav-current" aria-current="page">Accessibility</span>
+      </nav>
+    </header>
+
+    <main id="main-content" class="page-shell" tabindex="-1">
+      <header class="page-hero">
+        <p class="eyebrow">Strong Towns · Niagara Falls</p>
+        <h1>Accessibility</h1>
+        <p class="tagline">We aim to meet the Accessibility for Ontarians with Disabilities Act (AODA) and WCAG 2.0 Level AA for this public site.</p>
+      </header>
+
+      <div class="page-content page-content--prose a11y-prose">
+        <p>This speed radar toolkit is a volunteer community site. Public pages (results, how-to guide, and this statement) do not require a login. The optional password on the logging form is only a soft gate for event volunteers.</p>
+
+        <h2>What we support</h2>
+        <ul>
+          <li>Skip link to main content on every page</li>
+          <li>Keyboard access to navigation, forms, and street chart tabs</li>
+          <li>Visible focus indicators on interactive controls</li>
+          <li>Form labels and live error messages on the tracker</li>
+          <li>Text summaries beside charts on the results page</li>
+          <li>Semantic landmarks, headings, and table captions where used</li>
+        </ul>
+
+        <h2>Known limits</h2>
+        <ul>
+          <li>Results charts are drawn with Chart.js; the visual canvas is decorative for screen readers when a text summary is present. Prefer the summaries and the “By street” table for the same figures.</li>
+          <li>Published event data depends on volunteer CSV uploads; incomplete exports may limit what the results page can show.</li>
+        </ul>
+
+        <h2>Feedback</h2>
+        <p>If you encounter a barrier using this site, contact your Strong Towns Niagara Falls chapter organizers. Describe the page, the assistive technology you use (if any), and what you were trying to do.</p>
+
+        <p><em>Last reviewed: July 2026</em></p>
+
+        <footer class="site-footer">
+          <nav class="footer-nav" aria-label="Footer">
+            <a href="index.html">Log speeds</a>
+            <a href="results.html">Results</a>
+            <a href="guide.html">How to run</a>
+          </nav>
+          <p class="footer-credit">Strong Towns community speed radar</p>
+        </footer>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

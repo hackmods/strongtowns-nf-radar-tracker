@@ -1,7 +1,14 @@
 .event-date {
   margin: 0.25rem 0 0;
   font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.75);
+  color: var(--st-navy-mid);
+}
+
+.chart-summary {
+  margin: 0.65rem 0 0;
+  font-size: 0.82rem;
+  line-height: 1.4;
+  color: var(--muted);
 }
 
 .event-picker-wrap {

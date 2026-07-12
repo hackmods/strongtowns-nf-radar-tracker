@@ -7,11 +7,20 @@
  * 3. Set SECRET below to match app.js CONFIG.SECRET
  * 4. Save, then Deploy → Manage deployments → pencil → New version → Deploy
  * 5. Execute as: Me | Who has access: Anyone
+ *
+ * Expected JSON body (text/plain or application/json):
+ * {
+ *   secret, timestamp, street, direction, speed, unit?, deviceId
+ * }
+ * Columns: Timestamp | Street | Direction | Speed (km/h) | DeviceId
  */
 
 const SECRET = 'PASTE_YOUR_SECRET_HERE';
 const SHEET_NAME = 'Sheet1';
 const HEADERS = ['Timestamp', 'Street', 'Direction', 'Speed (km/h)', 'DeviceId'];
+const SPEED_MIN = 1;
+const SPEED_MAX = 250;
+const VALID_DIRECTIONS = ['N', 'S', 'E', 'W', ''];
 
 function doPost(e) {
   try {
@@ -45,14 +54,23 @@ function processSubmission_(data) {
   }
 
   const street = String(data.street || '').trim();
-  const direction = String(data.direction || '').toUpperCase();
+  const direction = String(data.direction || '').trim().toUpperCase();
   const speed = Number(data.speed);
   const timestamp = data.timestamp || new Date().toISOString();
   const deviceId = String(data.deviceId || '').trim();
+  // unit is optional metadata from the client (always km/h for this project)
+  const unit = String(data.unit || 'km/h').trim().toLowerCase();
 
   if (!street) return jsonResponse({ ok: false, error: 'Street is required' });
-  if (direction && !['N', 'S', 'E', 'W'].includes(direction)) return jsonResponse({ ok: false, error: 'Invalid direction' });
-  if (!Number.isFinite(speed) || speed < 1 || speed > 250) return jsonResponse({ ok: false, error: 'Invalid speed' });
+  if (VALID_DIRECTIONS.indexOf(direction) === -1) {
+    return jsonResponse({ ok: false, error: 'Invalid direction' });
+  }
+  if (!Number.isFinite(speed) || speed < SPEED_MIN || speed > SPEED_MAX) {
+    return jsonResponse({ ok: false, error: 'Invalid speed' });
+  }
+  if (unit && unit !== 'km/h' && unit !== 'km/hr' && unit !== 'kmh') {
+    return jsonResponse({ ok: false, error: 'Unsupported speed unit' });
+  }
 
   const sheet = getSheet_();
   ensureHeaders_(sheet);
@@ -74,6 +92,11 @@ function ensureHeaders_(sheet) {
   const firstRow = sheet.getRange(1, 1, 1, HEADERS.length).getValues()[0];
   if (firstRow.every(function (cell) { return cell === '' || cell === null; })) {
     sheet.getRange(1, 1, 1, HEADERS.length).setValues([HEADERS]);
+    return;
+  }
+  // Upgrade legacy "Speed" header to "Speed (km/h)" when columns otherwise match
+  if (String(firstRow[3]).trim() === 'Speed') {
+    sheet.getRange(1, 4).setValue(HEADERS[3]);
   }
 }
 

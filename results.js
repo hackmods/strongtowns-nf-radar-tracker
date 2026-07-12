@@ -17,10 +17,17 @@ const CHART_COLORS = {
   palette: ['#1a2f4d', '#2a4570', '#5a9cb5', '#8ecae6', '#a8c5d9', '#c4d9e8'],
 };
 
+const PREFERS_REDUCED_MOTION =
+  typeof window !== 'undefined' &&
+  window.matchMedia &&
+  window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
 let chartInstances = {};
 let currentRows = [];
 let currentEvent = null;
 let streetGroups = {};
+let streetDistTabsData = [];
+let streetDistActiveIndex = 0;
 
 const els = {
   chapterEyebrow: document.getElementById('chapter-eyebrow'),
@@ -224,6 +231,23 @@ function destroyCharts() {
   chartInstances = {};
 }
 
+function setChartSummary(canvasId, text) {
+  const el = document.getElementById('summary-' + canvasId);
+  if (el) el.textContent = text || '';
+}
+
+function pairsSummary(labels, values, valueSuffix) {
+  const suffix = valueSuffix || '';
+  return labels
+    .map((label, i) => label + ': ' + values[i] + suffix)
+    .filter((_, i) => values[i] > 0 || values[i] === 0)
+    .join('; ');
+}
+
+function chartAnimationOption() {
+  return PREFERS_REDUCED_MOTION ? false : undefined;
+}
+
 function statCard(value, label, unit, highlight) {
   const unitHtml = unit ? '<span class="stat-unit"> ' + unit + '</span>' : '';
   return (
@@ -298,6 +322,7 @@ function chartDefaults() {
   return {
     responsive: true,
     maintainAspectRatio: false,
+    animation: chartAnimationOption(),
     plugins: {
       legend: { labels: { font: { size: 11 }, color: CHART_COLORS.navy } },
     },
@@ -327,15 +352,22 @@ function setStreetDetailLayout(showDirection) {
 }
 
 function renderDistributionChart(canvasId, speeds) {
+  const counts = bucketCounts(speeds);
+  const labels = SPEED_BUCKETS.map((b) => b.label);
+  setChartSummary(
+    canvasId,
+    'Speed distribution (' + SPEED_UNIT + '). ' + pairsSummary(labels, counts, ' vehicles') + '.'
+  );
+
   const ctx = document.getElementById(canvasId).getContext('2d');
   if (chartInstances[canvasId]) chartInstances[canvasId].destroy();
   chartInstances[canvasId] = new Chart(ctx, {
     type: 'bar',
     data: {
-      labels: SPEED_BUCKETS.map((b) => b.label),
+      labels,
       datasets: [{
         label: 'Vehicles',
-        data: bucketCounts(speeds),
+        data: counts,
         backgroundColor: CHART_COLORS.accentDark,
         borderRadius: 4,
       }],
@@ -361,7 +393,15 @@ function renderStreetsAvgChart(groups) {
     .sort((a, b) => b.avg - a.avg)
     .slice(0, 10);
 
-  setBarChartHeight('chart-streets-avg', qualifying.length);
+  const avgs = qualifying.map((s) => Math.round(s.avg * 10) / 10);
+  setChartSummary(
+    'chart-streets-avg',
+    qualifying.length
+      ? 'Average speed by street. ' + pairsSummary(qualifying.map((s) => s.name), avgs, ' ' + SPEED_UNIT) + '.'
+      : 'Not enough readings per street to compare averages (need at least ' + MIN_STREET_READINGS + ' per street).'
+  );
+
+  setBarChartHeight('chart-streets-avg', Math.max(qualifying.length, 1));
 
   const ctx = document.getElementById('chart-streets-avg').getContext('2d');
   if (chartInstances['chart-streets-avg']) chartInstances['chart-streets-avg'].destroy();
@@ -371,7 +411,7 @@ function renderStreetsAvgChart(groups) {
       labels: qualifying.map((s) => s.name),
       datasets: [{
         label: 'Avg speed',
-        data: qualifying.map((s) => Math.round(s.avg * 10) / 10),
+        data: avgs,
         backgroundColor: CHART_COLORS.navy,
         borderRadius: 4,
       }],
@@ -391,6 +431,13 @@ function renderDirectionChart(canvasId, rows) {
   const counts = directionCounts(rows);
   const labels = Object.keys(counts).filter((k) => counts[k] > 0);
   const data = labels.map((k) => counts[k]);
+  setChartSummary(
+    canvasId,
+    labels.length
+      ? 'Travel direction. ' + pairsSummary(labels, data, ' readings') + '.'
+      : 'No direction data recorded.'
+  );
+
   const ctx = document.getElementById(canvasId).getContext('2d');
   if (chartInstances[canvasId]) chartInstances[canvasId].destroy();
   chartInstances[canvasId] = new Chart(ctx, {
@@ -405,6 +452,7 @@ function renderDirectionChart(canvasId, rows) {
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      animation: chartAnimationOption(),
       plugins: {
         legend: {
           position: 'bottom',
@@ -422,13 +470,21 @@ function renderHourlyChart(rows) {
     const h = r.timestamp.getHours();
     hours[h] = (hours[h] || 0) + 1;
   });
-  const labels = Object.keys(hours).sort((a, b) => Number(a) - Number(b)).map((h) => {
+  const hourKeys = Object.keys(hours).sort((a, b) => Number(a) - Number(b));
+  const labels = hourKeys.map((h) => {
     const hour = Number(h);
     const ampm = hour >= 12 ? 'PM' : 'AM';
     const h12 = hour % 12 || 12;
     return h12 + ' ' + ampm;
   });
-  const data = Object.keys(hours).sort((a, b) => Number(a) - Number(b)).map((h) => hours[h]);
+  const data = hourKeys.map((h) => hours[h]);
+
+  setChartSummary(
+    'chart-hourly',
+    data.length
+      ? 'Readings by hour. ' + pairsSummary(labels, data, ' readings') + '.'
+      : 'No hourly timestamp data.'
+  );
 
   const ctx = document.getElementById('chart-hourly').getContext('2d');
   if (chartInstances['chart-hourly']) chartInstances['chart-hourly'].destroy();
@@ -483,12 +539,18 @@ function renderStreetThresholdChart(groups, threshold) {
 
   if (qualifying.length < 2) {
     els.streetThresholdWrap.hidden = true;
+    setChartSummary('chart-street-threshold', '');
     return;
   }
 
   els.streetThresholdWrap.hidden = false;
   els.streetThresholdTitle.textContent = '% over ' + threshold + ' km/h by street';
   setBarChartHeight('chart-street-threshold', qualifying.length);
+  setChartSummary(
+    'chart-street-threshold',
+    'Percent of readings over ' + threshold + ' ' + SPEED_UNIT + ' by street. ' +
+      pairsSummary(qualifying.map((s) => s.name), qualifying.map((s) => s.pct), '%') + '.'
+  );
 
   const ctx = document.getElementById('chart-street-threshold').getContext('2d');
   if (chartInstances['chart-street-threshold']) chartInstances['chart-street-threshold'].destroy();
@@ -515,53 +577,87 @@ function renderStreetThresholdChart(groups, threshold) {
   });
 }
 
+function activateStreetDistTab(index) {
+  const tabs = streetDistTabsData;
+  if (!tabs.length || index < 0 || index >= tabs.length) return;
+  streetDistActiveIndex = index;
+  const tab = tabs[index];
+  const buttons = els.streetDistTabs.querySelectorAll('.street-tab');
+  buttons.forEach((b, i) => {
+    const selected = i === index;
+    b.classList.toggle('active', selected);
+    b.setAttribute('aria-selected', selected ? 'true' : 'false');
+    b.tabIndex = selected ? 0 : -1;
+  });
+
+  renderDistributionChart('chart-street-distribution', tab.speeds);
+  if (tab.id === 'overall') {
+    els.streetDirectionWrap.hidden = true;
+    setStreetDetailLayout(false);
+    setChartSummary('chart-street-direction', '');
+  } else {
+    const hasDirection = tab.rows.some((r) => r.direction);
+    els.streetDirectionWrap.hidden = !hasDirection;
+    setStreetDetailLayout(hasDirection);
+    if (hasDirection) {
+      els.streetDirectionTitle.textContent = 'Direction on ' + tab.label;
+      renderDirectionChart('chart-street-direction', tab.rows);
+    } else {
+      setChartSummary('chart-street-direction', '');
+    }
+  }
+  requestAnimationFrame(() => {
+    resizeChart('chart-street-distribution');
+    if (!els.streetDirectionWrap.hidden) resizeChart('chart-street-direction');
+  });
+}
+
 function renderStreetDistTabs(groups, rows) {
   const qualifying = Object.values(groups).filter((g) => g.rows.length >= MIN_STREET_READINGS);
   els.streetDistTabs.innerHTML = '';
 
-  const tabs = [{ id: 'overall', label: 'Overall', speeds: rows.map((r) => r.speed) }];
+  streetDistTabsData = [{ id: 'overall', label: 'Overall', speeds: rows.map((r) => r.speed) }];
   qualifying.forEach((g) => {
-    tabs.push({ id: normalizeStreetKey(g.name), label: g.name, speeds: g.rows.map((r) => r.speed), rows: g.rows });
+    streetDistTabsData.push({
+      id: normalizeStreetKey(g.name),
+      label: g.name,
+      speeds: g.rows.map((r) => r.speed),
+      rows: g.rows,
+    });
   });
 
-  tabs.forEach((tab, idx) => {
+  streetDistTabsData.forEach((tab, idx) => {
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'street-tab' + (idx === 0 ? ' active' : '');
+    btn.id = 'street-tab-' + tab.id;
     btn.textContent = tab.label;
     btn.setAttribute('role', 'tab');
     btn.setAttribute('aria-selected', idx === 0 ? 'true' : 'false');
-    btn.addEventListener('click', () => {
-      els.streetDistTabs.querySelectorAll('.street-tab').forEach((b) => {
-        b.classList.remove('active');
-        b.setAttribute('aria-selected', 'false');
-      });
-      btn.classList.add('active');
-      btn.setAttribute('aria-selected', 'true');
-      renderDistributionChart('chart-street-distribution', tab.speeds);
-      if (tab.id === 'overall') {
-        els.streetDirectionWrap.hidden = true;
-        setStreetDetailLayout(false);
-      } else {
-        const hasDirection = tab.rows.some((r) => r.direction);
-        els.streetDirectionWrap.hidden = !hasDirection;
-        setStreetDetailLayout(hasDirection);
-        if (hasDirection) {
-          els.streetDirectionTitle.textContent = 'Direction on ' + tab.label;
-          renderDirectionChart('chart-street-direction', tab.rows);
-        }
+    btn.setAttribute('aria-controls', 'street-dist-panel');
+    btn.tabIndex = idx === 0 ? 0 : -1;
+    btn.addEventListener('click', () => activateStreetDistTab(idx));
+    btn.addEventListener('keydown', (e) => {
+      let next = null;
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+        next = (idx + 1) % streetDistTabsData.length;
+      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+        next = (idx - 1 + streetDistTabsData.length) % streetDistTabsData.length;
+      } else if (e.key === 'Home') {
+        next = 0;
+      } else if (e.key === 'End') {
+        next = streetDistTabsData.length - 1;
       }
-      requestAnimationFrame(() => {
-        resizeChart('chart-street-distribution');
-        if (!els.streetDirectionWrap.hidden) resizeChart('chart-street-direction');
-      });
+      if (next !== null) {
+        e.preventDefault();
+        activateStreetDistTab(next);
+        els.streetDistTabs.querySelectorAll('.street-tab')[next].focus();
+      }
     });
     els.streetDistTabs.appendChild(btn);
   });
 
-  renderDistributionChart('chart-street-distribution', tabs[0].speeds);
-  els.streetDirectionWrap.hidden = true;
-  setStreetDetailLayout(false);
+  activateStreetDistTab(0);
 }
 
 function renderResults(rows, event) {

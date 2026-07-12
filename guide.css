@@ -4,6 +4,7 @@
   background: var(--surface);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
+  border: 1px solid var(--border);
   border-left: 4px solid var(--st-accent-dark);
 }
 
@@ -248,6 +249,7 @@
   box-shadow: var(--shadow);
   text-decoration: none;
   color: inherit;
+  border: 1px solid var(--border);
   border-top: 3px solid var(--st-accent-dark);
   transition: box-shadow 0.15s;
 }

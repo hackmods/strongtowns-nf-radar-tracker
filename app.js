@@ -189,8 +189,9 @@ function buildPayload(street, direction, speed) {
     secret: CONFIG.SECRET,
     timestamp: new Date().toISOString(),
     street,
-    direction,
+    direction: direction || '',
     speed,
+    unit: 'km/h',
     deviceId: getDeviceId(),
   };
 }
@@ -288,8 +289,11 @@ function showFormError(message) {
   if (message) {
     formError.textContent = message;
     formError.hidden = false;
+    formError.setAttribute('aria-hidden', 'false');
   } else {
+    formError.textContent = '';
     formError.hidden = true;
+    formError.setAttribute('aria-hidden', 'true');
   }
 }
 
@@ -328,6 +332,8 @@ radarForm.addEventListener('submit', async (e) => {
   const error = validateForm(street, speed);
   if (error) {
     showFormError(error);
+    if (!street) streetInput.focus();
+    else speedInput.focus();
     return;
   }
 
