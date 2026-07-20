@@ -1,6 +1,7 @@
 const CONFIG = {
   SCRIPT_URL: 'AKfycbzcLKEZ9c39ZvtLrvfRNQvtnPseQc_bZaHb0bGTqN1p7k-YFGrdraiFhcvgKSUxT-HVbA',
   SECRET: 'fk4BGdEGYd5GZRYkwNvjC3s5',
+  PASSWORD_REQUIRED: false,
   PASSWORD: 'Eddie',
   COOKIE_NAME: 'stnf_radar_unlocked',
   COOKIE_DAYS: 7,
@@ -44,6 +45,7 @@ function setCookie(name, value, days) {
 }
 
 function isUnlocked() {
+  if (!CONFIG.PASSWORD_REQUIRED) return true;
   return getCookie(CONFIG.COOKIE_NAME) === '1';
 }
 

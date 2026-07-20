@@ -6,7 +6,7 @@ Mobile-friendly tool for Strong Towns Niagara Falls volunteers to log speed rada
 
 - Street name (free text), direction (N / S / E / W, optional), and speed (km/h)
 - Automatic timestamp and per-device ID on every entry
-- Password gate ("Eddie") with a 7-day cookie so volunteers stay logged in
+- Optional password gate ("Eddie") with a 7-day cookie — controlled by `CONFIG.PASSWORD_REQUIRED` in `app.js` (currently off)
 - Offline-friendly: failed submissions queue locally and retry automatically
 
 ## Quick start
@@ -45,6 +45,7 @@ const CONFIG = {
   SCRIPT_URL: 'https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec',
   // or just the deployment ID: 'YOUR_DEPLOYMENT_ID'
   SECRET: 'stnf-2026-radar',  // must match Code.gs
+  PASSWORD_REQUIRED: false,  // set true to enable the Eddie password gate
   // ...
 };
 ```
@@ -64,7 +65,7 @@ const CONFIG = {
 2. Push to `main` — the workflow builds an nginx container and deploys it.
 3. Full setup: **[docs/DEPLOY-CAPROVER.md](docs/DEPLOY-CAPROVER.md)**
 
-Share the URL and password (`Eddie`) with volunteers.
+Share the URL with volunteers. If `PASSWORD_REQUIRED` is `true`, also share the password (`Eddie`).
 
 ## Results page
 
@@ -85,7 +86,7 @@ Download the sheet as CSV after the event for analysis.
 
 | Measure | Protects against |
 |---------|------------------|
-| Cookie password | Casual visitors who find the link |
+| Cookie password (`PASSWORD_REQUIRED`) | Casual visitors who find the link |
 | Shared secret in payload | Random POST spam to your script |
 | Neither | Someone inspecting the public JavaScript |
 
